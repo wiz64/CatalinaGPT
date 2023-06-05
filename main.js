@@ -1,18 +1,64 @@
 const { Configuration, OpenAIApi } = require('openai');
 const { Client } = require('discord.js-selfbot-v13');
-const { joinVoiceChannel } = require('@discordjs/voice');
 const fs = require('fs');
 require('dotenv').config();
+
+const handleReactions = require('./modules/handleReactions');
+const handleVoice = require('./modules/handleVoice');
+const methods = require('./modules/methods');
+global.delay = methods.delay;
+global.getRandomInt = methods.getRandomInt;
+global.ownerID = process.env.OWNER_ID;
 
 const configuration = new Configuration({
 	apiKey: process.env.OPENAI_TOKEN
 });
 const openai = new OpenAIApi(configuration);
-const client = new Client({
+global.client = new Client({
+	captchaService: process.env.CAPCHA_PROVIDER,
+	captchaKey: process.env.CAPCHA_PROVIDER_KEY,
 	patchVoice: true
 });
 const context = fs.readFileSync('context.txt', 'utf8');
-let joinedVoiceChannel;
+
+client.on('ready', async () => {
+	console.log(`${client.user.username} is ready!`);
+});
+
+client.on('voiceStateUpdate', async (oldState, newState) => {
+	await handleVoice(newState);
+});
+
+client.on('messageCreate', async (message) => {
+	if (message.author.bot) return;
+	if (message.author.id == client.user.id) return;
+	if (message.guildId != process.env.SERVER_ID) return;
+
+	await handleReactions(message);
+
+	if (!((message.content.toLowerCase().includes('baby') || message.content.toLowerCase().includes('honey') || message.content.toLowerCase().includes('sweetie') || message.content.toLowerCase().includes('mommy')) && message.author.id == ownerID)) {
+		if (!message.content.toLowerCase().includes('catalina') && !message.content.toLowerCase().includes('catty') && !message.content.toLowerCase().includes('catalyna')) {
+			return;
+		}
+	}
+
+	let asker = message.author.username;
+	if (message.author.id == ownerID) {
+		asker = 'your boyfriend Allory';
+	}
+	let response = await generatePrompt(message.content, asker);
+
+	if (response) {
+		let messageChannel = client.channels.cache.get(message.channelId);
+		await messageChannel.sendTyping();
+		await delay(parseInt(response.length * 25));
+		message.reply(response);
+	} else {
+		message.reply("Sorry, I cant speak. I don't feel ok right now.");
+	}
+});
+
+client.login(process.env.DISCORD_TOKEN);
 
 async function generatePrompt(question, asker) {
 	let prompt = `
@@ -38,72 +84,4 @@ Helpful Answer:`;
 		}
 		return false;
 	}
-}
-client.on('ready', async () => {
-	console.log(`${client.user.username} is ready!`);
-});
-
-client.on('voiceStateUpdate', async (oldState, newState) => {
-	if (newState.member.user.id == '1114261843721076766') {
-		if (!newState.channelId) {
-			if (newState.member.user.id == '1114261843721076766') {
-				if (!joinedVoiceChannel) return;
-				console.log('Destroying VC');
-				await delay(getRandomInt(5000, 20000));
-				console.log('Destroy');
-				joinedVoiceChannel.destroy();
-			}
-		} else {
-			console.log('Joining VC');
-			await delay(getRandomInt(5000, 25000));
-			console.log('Joined');
-			let voiceChannel = client.channels.cache.get(newState.channelId);
-			joinedVoiceChannel = joinVoiceChannel({
-				channelId: newState.channelId,
-				guildId: newState.guild.id,
-				adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-				selfDeaf: false
-			});
-		}
-	}
-});
-
-client.on('messageCreate', async (message) => {
-	if (message.author.bot) return;
-	if (message.author.id == client.user.id) return;
-	if (message.guildId != '1113161745092055130') return;
-	if (!((message.content.toLowerCase().includes('baby') || message.content.toLowerCase().includes('honey') || message.content.toLowerCase().includes('sweetie') || message.content.toLowerCase().includes('mommy')) && message.author.id == '1114261843721076766')) {
-		if (!message.content.toLowerCase().includes('catalina') && !message.content.toLowerCase().includes('catty') && !message.content.toLowerCase().includes('catalyna')) {
-			return;
-		}
-	}
-
-	let asker = message.author.username;
-	if (message.author.id == '1114261843721076766') {
-		asker = 'your boyfriend Allory';
-	}
-	let response = await generatePrompt(message.content, asker);
-
-	if (response) {
-		let messageChannel = client.channels.cache.get(message.channelId);
-		await messageChannel.sendTyping();
-		await delay(parseInt(response.length * 25));
-		message.reply(response);
-	} else {
-		message.reply("Sorry, I cant speak. I don't feel ok right now.");
-	}
-});
-
-client.login(process.env.DISCORD_TOKEN);
-
-function getRandomInt(min, max) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-function delay(ms) {
-	ms = parseInt(ms);
-	return new Promise((resolve) => {
-		setTimeout(resolve, ms);
-	});
 }
