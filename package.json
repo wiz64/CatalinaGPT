@@ -1,0 +1,18 @@
+{
+  "name": "catalina",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js-selfbot-v13": "^2.14.3",
+    "dotenv": "^16.1.4",
+    "node-capmonster": "^0.4.2",
+    "nodemon": "^2.0.22",
+    "openai": "^3.2.1"
+  }
+}
