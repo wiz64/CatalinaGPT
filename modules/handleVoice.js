@@ -35,7 +35,7 @@ async function handleVoice(newState) {
 
 			/* When user speaks in vc*/
 			receiver.speaking.on('start', async (userId) => {
-				return; //return otherwise it will crash
+				return;
 				createListeningStream(receiver, userId);
 			});
 		}
@@ -49,7 +49,7 @@ function createListeningStream(receiver, userId) {
 			duration: 100
 		}
 	});
-	return;
+
 	const buffing = [];
 	const encodere = new OpusEncoder(48000, 2);
 	opusStream.on('data', (chunk) => {

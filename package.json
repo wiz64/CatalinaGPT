@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.9.0",
-    "@discordjs/voice": "^0.8.0",
-    "discord.js": "^13.0.1",
+    "@discordjs/voice": "^0.16.0",
+    "@gradio/client": "^0.1.2",
+    "@huggingface/inference": "^2.5.0",
+    "discord.js": "^14.11.0",
     "discord.js-selfbot-v13": "^2.14.3",
     "dotenv": "^16.1.4",
     "libsodium-wrappers": "^0.7.11",
