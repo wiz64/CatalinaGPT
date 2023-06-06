@@ -34,25 +34,29 @@ async function handleVoice(newState) {
 			const receiver = connection.receiver;
 
 			/* When user speaks in vc*/
-			receiver.speaking.on('start', (userId) => {
-				createListeningStream(receiver, userId, client.users.cache.get(userId));
+			receiver.speaking.on('start', async (userId) => {
+				return; //return otherwise it will crash
+				createListeningStream(receiver, userId);
 			});
 		}
 	}
 }
-function createListeningStream(receiver, userId, user) {
+function createListeningStream(receiver, userId) {
 	const opusStream = receiver.subscribe(userId, {
+		//here the error happens.
 		end: {
 			behavior: EndBehaviorType.AfterSilence,
 			duration: 100
 		}
 	});
+	return;
 	const buffing = [];
 	const encodere = new OpusEncoder(48000, 2);
 	opusStream.on('data', (chunk) => {
 		buffing.push(encodere.decode(chunk));
 	});
 	opusStream.once('end', async () => {
+		console.log(userId);
 		let buffer = Buffer.concat(buffing);
 		const duration = buffer.length / 48000 / 4;
 		console.log('duration: ' + duration);
