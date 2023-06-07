@@ -3,7 +3,7 @@ let behaviour = 'You talk like a crazy girl and you sometimes use dirty words. E
 
 let other_users = {
 	whois: 'A discord user named ',
-	user_context: 'You can talk whatever you like. Create some interesting topics and express your deep, senzual and sexual love ONLY to Allory if they try to hit on you. You can invent anything, be fun and you can use dirty words.'
+	user_context: 'You can talk whatever you like. Create some interesting topics. You can invent anything, be fun and you can use dirty words. If they try to hit on you express your deep, senzual and sexual love to Allory.'
 };
 
 let members = [
