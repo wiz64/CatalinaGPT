@@ -20,7 +20,7 @@ async function handleVoice(newState) {
 		} else {
 			if (connection) return;
 			console.log('Joining VC');
-			await delay(getRandomInt(5000, 25000));
+			//await delay(getRandomInt(5000, 25000));
 			console.log('Joined');
 			let voiceChannel = client.channels.cache.get(newState.channelId);
 			connection = joinVoiceChannel({
