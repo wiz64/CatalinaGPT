@@ -7,9 +7,9 @@ const withEmojis = /\p{Extended_Pictographic}/gu;
 
 async function handleReactions(message) {
 	const randomNumber = Math.floor(Math.random() * 100);
-	let chanceToReact = 10;
+	let chanceToReact = 5;
 	if (message.author.id == client.user.id) {
-		chanceToReact = 15;
+		chanceToReact = 10;
 		message.content = 'Message received from your boyfriend:' + message.content;
 	}
 	if (!(randomNumber <= chanceToReact)) {
@@ -20,7 +20,7 @@ async function handleReactions(message) {
 		const completion = await openai.createCompletion({
 			model: 'text-davinci-003',
 			temperature: 0.1,
-			max_tokens: 50,
+			max_tokens: 20,
 			prompt: prompt
 		});
 		let emojyArray = completion.data.choices[0].text.match(withEmojis);

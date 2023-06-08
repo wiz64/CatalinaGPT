@@ -7,7 +7,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function handlePrompt(message) {
-	let response = await generatePrompt(message.content, message.author);
+	let response = await generatePrompt(message);
 	if (response) {
 		let messageChannel = client.channels.cache.get(message.channelId);
 		await messageChannel.sendTyping();
@@ -18,27 +18,44 @@ async function handlePrompt(message) {
 	}
 }
 
-async function generatePrompt(discordMessage, asker) {
-	let askerUsername = asker.username.replace(/[^a-zA-Z ]/g, '');
+async function generatePrompt(discordMessage) {
+	let askerUsername = discordMessage.author.username.replace(/[^a-zA-Z ]/g, '');
+	let userId = discordMessage.author.id;
 	let user = botcontext.other_users.whois + askerUsername;
 	let userBehaviour = botcontext.other_users.user_context;
-
-	if (botcontext.processedContext[asker.id]) {
-		user = botcontext.processedContext[asker.id].whois + askerUsername;
-		userBehaviour = botcontext.processedContext[asker.id].user_context;
+	let replyHistory = '';
+	if (discordMessage?.reference?.messageId) {
+		let reply = await discordMessage.channel.messages.fetch(discordMessage.reference.messageId);
+		let replyUsername = reply.author.username.replace(/[^a-zA-Z ]/g, '');
+		let replyContent = reply.content;
+		replyHistory = `History: ${replyUsername}: ${replyContent}`;
+		if (reply?.reference?.messageId) {
+			let replySecond = await reply.channel.messages.fetch(reply.reference.messageId);
+			let replyUsername = replySecond.author.username.replace(/[^a-zA-Z ]/g, '');
+			let replyContent = replySecond.content;
+			replyHistory = replyHistory + `\n${replyUsername}: ${replyContent}`;
+		}
 	}
 
-	let prompt = `
-${botcontext.about}
+	if (botcontext.processedContext[userId]) {
+		user = botcontext.processedContext[userId].whois + askerUsername;
+		userBehaviour = botcontext.processedContext[userId].user_context;
+	}
+	if (replyHistory) {
+		user = 'Current Message: ' + user;
+	}
+
+	let prompt = `${botcontext.about}
 
 Impersonate: ${botcontext.behaviour}
-
 Optional to Impersionate: ${userBehaviour}
 
-${user} said: ${discordMessage}
+${replyHistory}
+${user}: ${discordMessage.content}
 
-Your answer in chat:`;
+Your direct response in chat:`;
 
+	console.log(prompt);
 	let errorStatus = 429;
 	let retryCounter = 0;
 	while (errorStatus == 429 && retryCounter < 4) {
@@ -51,8 +68,7 @@ Your answer in chat:`;
 				max_tokens: 500,
 				prompt: prompt
 			});
-
-			return completion.data.choices[0].text;
+			return completion.data.choices[0].text.replace('CattyCatalina:', '');
 		} catch (error) {
 			console.log('Errror prompting ' + retryCounter);
 			if (error.response) {
