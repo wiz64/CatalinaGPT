@@ -15,7 +15,6 @@ async function handlePrompt(message) {
 		let foundMember = false;
 		members.forEach(async (member) => {
 			const memberId = member.user.id;
-			console.log(memberId);
 			if (message.author.id == memberId) {
 				foundMember = true; //found in voice chat
 				await handleVoicePrompt(message);
@@ -86,7 +85,7 @@ Your direct response in chat:`;
 				prompt: prompt
 			});
 
-			return completion.data.choices[0].text.replace('CattyCatalina:', '') + ` ${completion.data.usage.prompt_tokens} - ${completion.data.total_tokens}`;
+			return completion.data.choices[0].text.replace('CattyCatalina:', '') + ` ${completion.data.usage.prompt_tokens} - ${completion.data.usage.total_tokens}`;
 		} catch (error) {
 			console.log('Errror prompting ' + retryCounter);
 			if (error.response) {

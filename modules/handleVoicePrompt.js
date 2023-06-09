@@ -18,7 +18,7 @@ let keys = [];
 async function handleVoicePrompt(message) {
 	const response = await generateVoicePrompt(message);
 
-	if (response.length < 250) {
+	if (response.length < 200) {
 		if (!key) {
 			if (process.env.ELEVENLABS_TOKEN.includes(',') && keys.length == 0) {
 				keys = process.env.ELEVENLABS_TOKEN.split(',');
