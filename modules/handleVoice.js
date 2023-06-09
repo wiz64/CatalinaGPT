@@ -4,7 +4,7 @@ const { Wit } = require('node-wit');
 const { OpusEncoder } = require('@discordjs/opus');
 
 const witClient = new Wit({ accessToken: process.env.WITHAI_TOKEN });
-let connection;
+global.connection = null;
 
 async function handleVoice(newState) {
 	if (newState.member.user.id == ownerID) {
@@ -20,7 +20,7 @@ async function handleVoice(newState) {
 		} else {
 			if (connection) return;
 			console.log('Joining VC');
-			await delay(getRandomInt(5000, 25000));
+			//await delay(getRandomInt(5000, 25000));
 			console.log('Joined');
 			let voiceChannel = client.channels.cache.get(newState.channelId);
 			connection = joinVoiceChannel({
@@ -35,7 +35,6 @@ async function handleVoice(newState) {
 
 			/* When user speaks in vc*/
 			receiver.speaking.on('start', async (userId) => {
-				return;
 				createListeningStream(receiver, userId);
 			});
 		}
