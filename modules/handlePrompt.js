@@ -73,7 +73,6 @@ ${user}: ${discordMessage.content}
 
 Your direct response in chat:`;
 
-	console.log(prompt);
 	let errorStatus = 429;
 	let retryCounter = 0;
 	while (errorStatus == 429 && retryCounter < 4) {
@@ -86,7 +85,8 @@ Your direct response in chat:`;
 				max_tokens: 500,
 				prompt: prompt
 			});
-			return completion.data.choices[0].text.replace('CattyCatalina:', '');
+
+			return completion.data.choices[0].text.replace('CattyCatalina:', '') + ` ${completion.data.usage.prompt_tokens} - ${completion.data.total_tokens}`;
 		} catch (error) {
 			console.log('Errror prompting ' + retryCounter);
 			if (error.response) {
