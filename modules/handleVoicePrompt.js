@@ -98,7 +98,7 @@ Your direct response in chat:`;
 		try {
 			const completion = await openai.createCompletion({
 				model: 'text-davinci-003',
-				temperature: 1,
+				temperature: 0.85,
 				max_tokens: 500,
 				prompt: prompt
 			});

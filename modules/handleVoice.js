@@ -35,7 +35,7 @@ async function handleVoice(newState) {
 
 			/* When user speaks in vc*/
 			receiver.speaking.on('start', async (userId) => {
-				createListeningStream(receiver, userId);
+				//createListeningStream(receiver, userId);
 			});
 		}
 	}

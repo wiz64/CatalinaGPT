@@ -4,7 +4,8 @@ require('dotenv').config();
 
 const handleReactions = require('./modules/handleReactions');
 const handleVoice = require('./modules/handleVoice');
-const handlePrompt = require('./modules/handlePrompt');
+//const handlePrompt = require('./modules/handlePrompt');
+const handlePrompt = require('./modules/handlePromptTurbo');
 const methods = require('./modules/methods');
 
 global.delay = methods.delay;

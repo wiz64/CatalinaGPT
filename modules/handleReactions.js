@@ -8,27 +8,32 @@ const withEmojis = /\p{Extended_Pictographic}/gu;
 async function handleReactions(message) {
 	const randomNumber = Math.floor(Math.random() * 100);
 	let chanceToReact = 5;
-	if (message.author.id == client.user.id) {
-		chanceToReact = 10;
-		message.content = 'Message received from your boyfriend:' + message.content;
+	if (message.author.id == process.env.OWNER_ID) {
+		chanceToReact = 100;
 	}
 	if (!(randomNumber <= chanceToReact)) {
 		return;
 	}
 	try {
-		let prompt = `Give one or more emojies for this: ${message.content}`;
-		const completion = await openai.createCompletion({
-			model: 'text-davinci-003',
-			temperature: 0.1,
-			max_tokens: 20,
-			prompt: prompt
+		let messages = [];
+		messages.unshift({
+			role: 'system',
+			content: 'Undesteand the meaning of the text and output one or two emoji for it.'
 		});
-		let emojyArray = completion.data.choices[0].text.match(withEmojis);
+		messages.push({ role: 'user', content: message.content });
+		const completion = await openai.createChatCompletion({
+			model: 'gpt-3.5-turbo',
+			temperature: 0.2,
+			max_tokens: 30,
+			messages: messages
+		});
 
+		let emojyArray = completion.data.choices[0].message.content.match(withEmojis);
 		if (!emojyArray) return;
 		if (Math.floor(Math.random() * 100) > 31) {
 			emojyArray = [emojyArray[0]];
 		}
+
 		for (var i = 0; i < emojyArray.length; i++) {
 			await message.react(emojyArray[i]);
 		}

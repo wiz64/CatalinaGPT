@@ -1,6 +1,7 @@
 const { Configuration, OpenAIApi } = require('openai');
 const handleVoicePrompt = require('./handleVoicePrompt');
 const botcontext = require('../context');
+
 const configuration = new Configuration({
 	apiKey: process.env.OPENAI_TOKEN
 });
@@ -38,39 +39,11 @@ async function handlePrompt(message) {
 async function generateTextPrompt(discordMessage) {
 	let askerUsername = discordMessage.author.username.replace(/[^a-zA-Z ]/g, '');
 	let userId = discordMessage.author.id;
-	let user = botcontext.other_users.whois + askerUsername;
+	let user = askerUsername;
 	let userBehaviour = botcontext.other_users.user_context;
-	let replyHistory = '';
-	if (discordMessage?.reference?.messageId) {
-		let reply = await discordMessage.channel.messages.fetch(discordMessage.reference.messageId);
-		let replyUsername = reply.author.username.replace(/[^a-zA-Z ]/g, '');
-		let replyContent = reply.content;
-		replyHistory = `History: ${replyUsername}: ${replyContent}`;
-		if (reply?.reference?.messageId) {
-			let replySecond = await reply.channel.messages.fetch(reply.reference.messageId);
-			let replyUsername = replySecond.author.username.replace(/[^a-zA-Z ]/g, '');
-			let replyContent = replySecond.content;
-			replyHistory = replyHistory + `\n${replyUsername}: ${replyContent}`;
-		}
-	}
-
 	if (botcontext.processedContext[userId]) {
-		user = botcontext.processedContext[userId].whois + askerUsername;
 		userBehaviour = botcontext.processedContext[userId].user_context;
 	}
-	if (replyHistory) {
-		user = 'Current Message: ' + user;
-	}
-
-	let prompt = `${botcontext.about}
-
-Impersonate: ${botcontext.behaviour}
-Optional to Impersionate: ${userBehaviour}
-
-${replyHistory}
-${user}: ${discordMessage.content}
-
-Your direct response in chat:`;
 
 	let errorStatus = 429;
 	let retryCounter = 0;
@@ -78,14 +51,44 @@ Your direct response in chat:`;
 		retryCounter += 1;
 		errorStatus = 0;
 		try {
-			const completion = await openai.createCompletion({
-				model: 'text-davinci-003',
-				temperature: 0.85,
-				max_tokens: 500,
-				prompt: prompt
+			let systemMessage = `${botcontext.about}
+Impersonate: ${botcontext.behaviour}
+Optional to Impersionate: ${userBehaviour}
+Keep messages short.`;
+
+			let messages = [];
+			let repliesPass = 0;
+			let analyzedDiscordMessage = discordMessage;
+			for (var i = 0; i < 12; i++) {
+				repliesPass += 1;
+				if (analyzedDiscordMessage?.reference?.messageId) {
+					let reply = await discordMessage.channel.messages.fetch(analyzedDiscordMessage.reference.messageId);
+					let replyUsername = reply.author.username.replace(/[^a-zA-Z ]/g, '');
+					if (reply.author.id == client.user.id) {
+						messages.unshift({ role: 'assistant', content: `Catalina: ${reply.content}` });
+					} else {
+						messages.unshift({ role: 'user', content: `${replyUsername}: ${reply.content}` });
+					}
+					analyzedDiscordMessage = reply;
+				} else {
+					break;
+				}
+			}
+			messages.unshift({
+				role: 'system',
+				content: systemMessage
 			});
 
-			return completion.data.choices[0].text.replace('CattyCatalina:', '') + ` ${completion.data.usage.prompt_tokens} - ${completion.data.usage.total_tokens}`;
+			messages.push({ role: 'user', content: `${askerUsername}: ${discordMessage.content}` });
+			console.log(messages);
+
+			const completion = await openai.createChatCompletion({
+				model: 'gpt-3.5-turbo',
+				temperature: 0.85,
+				messages: messages
+			});
+			console.log(`Replies Pass: ${repliesPass} Total Tokens: ${completion.data.usage.total_tokens} - ${parseFloat(parseInt(completion.data.usage.total_tokens) * 0.000002).toFixed(4)}$`);
+			return completion.data.choices[0].message.content.replace('Catalina: ', '');
 		} catch (error) {
 			console.log('Errror prompting ' + retryCounter);
 			if (error.response) {
