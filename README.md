@@ -1,4 +1,3 @@
-
 # CatalinaGPT
 
 A discord selfbot made with love that is powered by OpenAI in order to interact with you or your server people.
@@ -15,8 +14,6 @@ Install CatalinaGPT with npm
   edit context.js
   npm start
 ```
-    
-
 
 ## Features
 
@@ -25,4 +22,4 @@ Install CatalinaGPT with npm
 - Randomly reacts and understend what she's reacting to
 - Customizable Behaviour
 - Will join voice chat where you join
-
+- Will randomnly speak in the voice chat if you prompt her

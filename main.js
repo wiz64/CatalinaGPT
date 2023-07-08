@@ -3,6 +3,7 @@ const { Client } = require('discord.js-selfbot-v13');
 require('dotenv').config();
 
 const handleReactions = require('./modules/handleReactions');
+const handleAnalysis = require('./modules/handleAnalysis');
 const handleVoice = require('./modules/handleVoice');
 //const handlePrompt = require('./modules/handlePrompt');
 const handlePrompt = require('./modules/handlePromptTurbo');
@@ -30,6 +31,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 client.on('messageCreate', async (message) => {
 	if (message.author.bot) return;
 	if (message.author.id == client.user.id) return;
+	if (message.content.toLowerCase().includes('catty') && message.author.id == ownerID) {
+		let checker = await handleAnalysis(message);
+		if (checker) return;
+	}
 	if (message.guildId != process.env.SERVER_ID) return;
 
 	await handleReactions(message);

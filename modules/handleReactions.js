@@ -9,7 +9,7 @@ async function handleReactions(message) {
 	const randomNumber = Math.floor(Math.random() * 100);
 	let chanceToReact = 5;
 	if (message.author.id == process.env.OWNER_ID) {
-		chanceToReact = 100;
+		chanceToReact = 10;
 	}
 	if (!(randomNumber <= chanceToReact)) {
 		return;

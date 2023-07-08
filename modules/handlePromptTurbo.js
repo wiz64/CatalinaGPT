@@ -39,7 +39,6 @@ async function handlePrompt(message) {
 async function generateTextPrompt(discordMessage) {
 	let askerUsername = discordMessage.author.username.replace(/[^a-zA-Z ]/g, '');
 	let userId = discordMessage.author.id;
-	let user = askerUsername;
 	let userBehaviour = botcontext.other_users.user_context;
 	if (botcontext.processedContext[userId]) {
 		userBehaviour = botcontext.processedContext[userId].user_context;
@@ -80,7 +79,6 @@ Keep messages short.`;
 			});
 
 			messages.push({ role: 'user', content: `${askerUsername}: ${discordMessage.content}` });
-			console.log(messages);
 
 			const completion = await openai.createChatCompletion({
 				model: 'gpt-3.5-turbo',
@@ -88,7 +86,9 @@ Keep messages short.`;
 				messages: messages
 			});
 			console.log(`Replies Pass: ${repliesPass} Total Tokens: ${completion.data.usage.total_tokens} - ${parseFloat(parseInt(completion.data.usage.total_tokens) * 0.000002).toFixed(4)}$`);
-			return completion.data.choices[0].message.content.replace('Catalina: ', '');
+			let response = completion.data.choices[0].message.content.split(':');
+			response.shift();
+			return response.join(':');
 		} catch (error) {
 			console.log('Errror prompting ' + retryCounter);
 			if (error.response) {
