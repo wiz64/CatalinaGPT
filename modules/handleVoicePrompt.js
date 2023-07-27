@@ -11,7 +11,7 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const voiceID = 'EXAVITQu4vr4xnSDxMaL';
+const voiceID = '21m00Tcm4TlvDq8ikWAM';
 let key = null;
 let keys = [];
 
