@@ -35,9 +35,6 @@ client.on('messageCreate', async (message) => {
 		let checker = await handleAnalysis(message);
 		if (checker) return;
 	}
-	if (message.guildId != process.env.SERVER_ID) return;
-
-	await handleReactions(message);
 
 	if (message?.reference?.messageId) {
 		let reply = await message.channel.messages.fetch(message.reference.messageId);
@@ -46,6 +43,13 @@ client.on('messageCreate', async (message) => {
 			await handlePrompt(message);
 			return;
 		}
+	}
+
+	if (message.guildId != process.env.SERVER_ID) {
+		if ((message.content.toLowerCase().includes('baby') || message.content.toLowerCase().includes('catalina') || message.content.toLowerCase().includes('catty') || message.content.toLowerCase().includes('honey') || message.content.toLowerCase().includes('sweetie') || message.content.toLowerCase().includes('mommy')) && message.author.id == ownerID) {
+			await handlePrompt(message);
+		}
+		return;
 	}
 
 	if (!((message.content.toLowerCase().includes('baby') || message.content.toLowerCase().includes('honey') || message.content.toLowerCase().includes('sweetie') || message.content.toLowerCase().includes('mommy')) && message.author.id == ownerID)) {
