@@ -86,7 +86,9 @@ Keep messages short.`;
 				messages: messages
 			});
 			console.log(`Replies Pass: ${repliesPass} Total Tokens: ${completion.data.usage.total_tokens} - ${parseFloat(parseInt(completion.data.usage.total_tokens) * 0.000002).toFixed(4)}$`);
-			let response = completion.data.choices[0].message.content.split(':');
+			let response = completion.data.choices[0].message.content;
+			if(!response.includes(':')) { return response; }
+			response = response.split(':');
 			response.shift();
 			return response.join(':');
 		} catch (error) {
